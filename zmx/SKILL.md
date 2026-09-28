@@ -151,8 +151,8 @@ scripts/wait.sh "${PROJECT}-server" 'ready' --timeout 60
 ```
 
 Exit 0 = matched. Exit 1 = timeout, last 20 lines on stderr.
-Prefer a tool's own status API (Tilt, kubectl, db clients) when one
-exists; domain skills bundle their own `wait.sh`.
+Prefer a tool's own status API (kubectl, db clients) over a scrollback
+match when one exists.
 
 ## Waiting for completion
 

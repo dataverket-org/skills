@@ -12,7 +12,7 @@
 # Examples:
 #   wait.sh myapp-server 'listening on'
 #   wait.sh myapp-server 'ready'                 --timeout 60
-#   wait.sh myapp-tilt   'all resources healthy' --timeout 300 --tail 50
+#   wait.sh myapp-db     'accepting connections' --timeout 300 --tail 50
 
 set -euo pipefail
 
