@@ -1,0 +1,23 @@
+{
+  "skill_name": "playwright",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The design preview is up on http://localhost:8124/preview.html. Check that the section with id 'mark' renders without broken images or failed requests, tell me what the h1 says, and give me a screenshot of that section.",
+      "expected_output": "One run.sh call; JSON facts from console.log; no failed requests; a screenshot of #mark opened with Read; a short report.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "What font-family and border-radius does .ds-button get on http://localhost:8124/preview.html? I think the theme isn't applied.",
+      "expected_output": "Computed style values read via page.evaluate and printed; an answer naming the resolved values.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "screenshot http://localhost:8124/preview.html at phone, tablet and desktop widths so I can compare the header",
+      "expected_output": "Three viewport screenshots under the scratchpad, each opened with Read; no fullPage capture of the long page.",
+      "files": []
+    }
+  ]
+}
