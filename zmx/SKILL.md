@@ -1,6 +1,6 @@
 ---
 name: zmx
-description: Use whenever a command needs to outlive the current shell — dev servers, file/test watchers, `tilt up`, database servers, anything you'd start once and observe over time. Trigger even when "zmx" isn't named — "start the dev server", "run the watcher in the background", "keep this running and tell me when it's ready", or "run npm run dev and check the logs" all qualify. Do NOT use for one-shot commands that finish in seconds.
+description: Use whenever a command needs to outlive the current shell — dev servers, file/test watchers, database servers, anything you'd start once and observe over time. Trigger even when "zmx" isn't named — "start the dev server", "run the watcher in the background", "keep this running and tell me when it's ready", or "run npm run dev and check the logs" all qualify. Do NOT use for one-shot commands that finish in seconds.
 ---
 
 # zmx
@@ -189,7 +189,6 @@ than debugging the agent.
 
 | Scenario                              | zmx? |
 |---|---|
-| `tilt up`                             | Yes, always |
 | Dev server (`npm run dev`, `rails s`) | Yes |
 | File watcher                          | Yes |
 | Test watcher                          | Yes |
