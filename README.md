@@ -6,6 +6,7 @@ skill, `SKILL.md` plus `scripts/`, `references/`, `evals/`.
 | Skill | What it does |
 |---|---|
 | [playwright](playwright/) | Browser automation in a persistent container. Screenshots, computed styles, DOM and network checks. |
+| [zmx](zmx/) | Long-lived processes in detached sessions: dev servers, watchers, `tilt up`. Start, wait for ready, scan output, kill by project. |
 
 ## Install
 
@@ -13,6 +14,7 @@ Symlink the folder, not the file. Agents discover `~/.claude/skills/<name>/SKILL
 
 ```sh
 ln -s "$PWD/playwright" ~/.claude/skills/playwright
+ln -s "$PWD/zmx" ~/.claude/skills/zmx
 ```
 
 ## Conventions
