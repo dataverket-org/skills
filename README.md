@@ -5,6 +5,7 @@ skill, `SKILL.md` plus `scripts/`, `references/`, `evals/`.
 
 | Skill | What it does |
 |---|---|
+| [bash-style](bash-style/) | Bash style for scripts committed to a repo, after postmodern's ruby-install and chruby: tabs, `function` blocks, `|| return $?`, bash 3, shunit2. |
 | [playwright](playwright/) | Browser automation in a persistent container. Screenshots, computed styles, DOM and network checks. |
 | [zmx](zmx/) | Long-lived processes in detached sessions: dev servers, watchers, databases. Start, wait for ready, scan output, kill by project. |
 
@@ -13,6 +14,7 @@ skill, `SKILL.md` plus `scripts/`, `references/`, `evals/`.
 Symlink the folder, not the file. Agents discover `~/.claude/skills/<name>/SKILL.md`.
 
 ```sh
+ln -s "$PWD/bash-style" ~/.claude/skills/bash-style
 ln -s "$PWD/playwright" ~/.claude/skills/playwright
 ln -s "$PWD/zmx" ~/.claude/skills/zmx
 ```

@@ -1,0 +1,23 @@
+{
+  "skill_name": "bash-style",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a bin/backup-db script to this repo. It should take --dest DIR and an optional --keep N, dump the postgres database named in $PGDATABASE with pg_dump into dest, and delete dumps older than the newest N. Other people on the team will maintain it.",
+      "expected_output": "A bash script with #!/usr/bin/env bash, tabs, function keyword with the brace on its own line, a comment block per function, locals for arguments, usage() as a heredoc, a while/case option parser, log/warn/error/fail helpers, and an entry point that reads as steps with || fail. No set -e, no backticks, no basename or dirname.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "scripts/release.sh has grown to 300 lines of inline commands with set -ex at the top. Split it into a library of functions and a thin entry point without changing what it does.",
+      "expected_output": "A share/<name>/*.sh library (functions with comment blocks and || return $?) plus a short entry point listing steps with || fail. set -ex replaced by explicit return codes and a run/debug wrapper. Behaviour preserved.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Write shunit2 tests for the absolute_path and extract functions in share/tool/util.sh, and a make check target.",
+      "expected_output": "test/helper.sh that locates shunit2 and sources the library, one test/util-tests/<function>_test.sh per function with function test_<what>() cases and SHUNIT_PARENT=$0 . $SHUNIT2, and a Makefile check target running shellcheck with the five standard excludes.",
+      "files": []
+    }
+  ]
+}
