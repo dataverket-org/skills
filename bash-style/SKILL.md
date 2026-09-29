@@ -17,9 +17,16 @@ settles what they leave open.
 
 - `#!/usr/bin/env bash` on executables. Library files that are only sourced
   get no shebang and are never executable.
-- A thin entry point in `bin/<name>` that sources `share/<name>/<name>.sh` and
-  reads as a list of steps. Functions live in `share/<name>/*.sh`, one topic
-  per file (`logging.sh`, `util.sh`, `<thing>/functions.sh`).
+- A tool installed onto PATH: a thin entry point in `bin/<name>` that sources
+  `share/<name>/<name>.sh` and reads as a list of steps. Functions live in
+  `share/<name>/*.sh`, one topic per file (`logging.sh`, `util.sh`,
+  `<thing>/functions.sh`).
+- An in-repo tool, run only from the repository it lives in: `bin/` alone,
+  no `share/`. One executable per task, named after the task, and the shared
+  functions in `bin/functions.sh`, sourced with
+  `source "${0%/*}/functions.sh"`. A task runner (Taskfile, Makefile) is an
+  index of one-line entries that call `bin/<task>` and holds no shell of its
+  own.
 - Find yourself with parameter expansion, not external commands:
   `"${0%/*}"` in a script, `"${BASH_SOURCE[0]%/*}"` in a library.
 - Tabs for indentation, spaces only to align continuation lines. Keep lines
