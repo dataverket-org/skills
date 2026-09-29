@@ -20,10 +20,10 @@ function link_skills()
 		case "$(status "$target" "$name")" in
 			ok)	;;
 			missing|stale)
-				echo ">>> link   $target/$name"
+				log "link   $target/$name"
 				ln -sfn "$repo/$name" "$target/$name" || return $?
 				;;
-			*)	echo "*** skip   $target/$name (not our symlink)" >&2 ;;
+			*)	warn "skip   $target/$name (not our symlink)" ;;
 		esac
 	done
 }
@@ -38,7 +38,7 @@ function prune_stale()
 
 	for link in "$target"/*; do
 		[[ "$(status "$target" "${link##*/}")" == stale ]] || continue
-		echo ">>> remove $link"
+		log "remove $link"
 		rm "$link" || return $?
 	done
 }

@@ -10,6 +10,22 @@ repo="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
 targets=("$HOME/.claude/skills" "$HOME/.agents/skills")
 
 #
+# Prints a log message.
+#
+function log()
+{
+	echo ">>> $1"
+}
+
+#
+# Prints a warning message.
+#
+function warn()
+{
+	echo "*** $1" >&2
+}
+
+#
 # Prints an error message and exits.
 #
 function fail()
