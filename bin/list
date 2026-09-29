@@ -4,7 +4,7 @@
 #
 
 # shellcheck source=bin/functions.sh
-source "${0%/*}/functions.sh"
+source "${0%/*}/functions.sh" || exit $?
 
 #
 # Prints the first line of a skill's description, cut to 50 columns.

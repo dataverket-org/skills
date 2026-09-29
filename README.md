@@ -1,7 +1,7 @@
 # dataverket-skills
 
-Skills for coding agents. One folder per skill: `SKILL.md` plus `scripts/`,
-`references/`, `evals/`.
+Skills for coding agents. One folder per skill: `SKILL.md`, and `scripts/`,
+`references/`, `evals/` where the skill needs them.
 
 | Skill | What it does |
 |---|---|
@@ -11,24 +11,39 @@ Skills for coding agents. One folder per skill: `SKILL.md` plus `scripts/`,
 
 ## Install
 
-This repo is the canonical copy. Agents read symlinks to it from their own
-skill folders: `~/.claude/skills` (Claude Code) and `~/.agents/skills` (other
-agents; Claude Code only scans it for `/import`). The scripts are in `bin/`,
-the Taskfile is the index. Needs [Task](https://taskfile.dev).
+This repo is the canonical copy of each skill. Agents read symlinks to it
+from their own skill folders.
+
+| Folder | Read by |
+|---|---|
+| `~/.claude/skills` | Claude Code |
+| `~/.agents/skills` | Other agents. Claude Code does not load skills from it. |
+
+```sh
+git clone ssh://git@git.dataverket.org/dataverket/skills.git
+cd skills
+task link     # first run: symlink every skill into both folders
+```
+
+Afterwards:
 
 ```sh
 task list     # skills and symlink status per folder
-task update   # git pull, add missing symlinks, remove stale ones
-task link     # same without the pull
+task update   # git pull, then link
+task link     # add missing symlinks, remove stale ones
 task check    # shellcheck bin/
 ```
 
-Real folders and symlinks to other places in those folders are left alone.
+`task link` leaves real folders and symlinks to other places alone. Needs
+[Task](https://taskfile.dev). `task check` also needs shellcheck.
 
 ## Conventions
 
 - `SKILL.md` under 150 lines. Longer material in `references/`, pointed to from the body.
-- Scripts: no host dependencies beyond podman or docker. Versions pinned in the script.
+- Skill scripts: no host dependencies beyond podman or docker. Versions pinned in the script.
+- `bin/` follows [bash-style](bash-style/), in-repo layout. Verify with `task check`.
+- `Taskfile.yml` lists commands. A task that needs conditionals, loops or
+  computed variables becomes a script in `bin/`.
 - Comments: facts, decisions, references. No reasoning prose.
 - `evals/evals.json`: test prompts for the skill-creator loop.
-- Verify before commit: `shellcheck scripts/*.sh`, `node --check scripts/*.js`, one real run.
+- Verify a skill before commit: `shellcheck scripts/*.sh`, `node --check scripts/*.js`, one real run.

@@ -6,7 +6,7 @@
 # Agents read ~/.claude/skills (Claude Code) and ~/.agents/skills (others).
 #
 
-repo="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
+repo="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)" || return $?
 targets=("$HOME/.claude/skills" "$HOME/.agents/skills")
 
 #
@@ -26,11 +26,19 @@ function warn()
 }
 
 #
+# Prints an error message.
+#
+function error()
+{
+	echo "!!! $1" >&2
+}
+
+#
 # Prints an error message and exits.
 #
 function fail()
 {
-	echo "!!! $1" >&2
+	error "$*"
 	exit 1
 }
 

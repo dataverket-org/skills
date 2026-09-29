@@ -5,7 +5,7 @@
 #
 
 # shellcheck source=bin/functions.sh
-source "${0%/*}/functions.sh"
+source "${0%/*}/functions.sh" || exit $?
 
 #
 # Links every repo skill into a target folder.
