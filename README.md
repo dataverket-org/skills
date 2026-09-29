@@ -1,7 +1,7 @@
 # dataverket-skills
 
-Skills for coding agents: Claude Code, GitHub Copilot, OpenCode. One folder per
-skill, `SKILL.md` plus `scripts/`, `references/`, `evals/`.
+Skills for coding agents. One folder per skill: `SKILL.md` plus `scripts/`,
+`references/`, `evals/`.
 
 | Skill | What it does |
 |---|---|
@@ -11,13 +11,19 @@ skill, `SKILL.md` plus `scripts/`, `references/`, `evals/`.
 
 ## Install
 
-Symlink the folder, not the file. Agents discover `~/.claude/skills/<name>/SKILL.md`.
+This repo is the canonical copy. Agents read symlinks to it from their own
+skill folders: `~/.claude/skills` (Claude Code) and `~/.agents/skills` (other
+agents; Claude Code only scans it for `/import`). The scripts are in `bin/`,
+the Taskfile is the index. Needs [Task](https://taskfile.dev).
 
 ```sh
-ln -s "$PWD/bash-style" ~/.claude/skills/bash-style
-ln -s "$PWD/playwright" ~/.claude/skills/playwright
-ln -s "$PWD/zmx" ~/.claude/skills/zmx
+task list     # skills and symlink status per folder
+task update   # git pull, add missing symlinks, remove stale ones
+task link     # same without the pull
+task check    # shellcheck bin/
 ```
+
+Real folders and symlinks to other places in those folders are left alone.
 
 ## Conventions
 

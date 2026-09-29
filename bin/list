@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Skills in the repo and their symlink status in each agent folder.
+#
+
+# shellcheck source=bin/functions.sh
+source "${0%/*}/functions.sh"
+
+#
+# Prints the first line of a skill's description, cut to 50 columns.
+#
+function description()
+{
+	local name="$1"
+
+	sed -n 's/^description: *//p' "$repo/$name/SKILL.md" 2>/dev/null |
+		cut -c1-50
+}
+
+#
+# Prints one table row: the name, a status per target, the description.
+#
+function row()
+{
+	local name="$1"
+	local target
+
+	printf '%-14s' "$name"
+	for target in "${targets[@]}"; do
+		printf ' %-8s' "$(status "$target" "$name")"
+	done
+	printf ' %s\n' "$(description "$name")"
+}
+
+printf '%-14s' SKILL
+for target in "${targets[@]}"; do
+	target="${target%/skills}"
+	printf ' %-8s' "${target##*/}"
+done
+printf ' %s\n' DESCRIPTION
+
+for name in $(names | sort -u); do
+	row "$name"
+done

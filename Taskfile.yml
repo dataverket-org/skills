@@ -1,0 +1,6 @@
+version: '3'
+tasks:
+  list:   { desc: "Skills and symlink status per agent folder",  cmds: [bin/list] }
+  link:   { desc: "Add missing symlinks, remove stale ones",     cmds: [bin/link] }
+  update: { desc: "git pull, then link",                         cmds: [git pull --ff-only, bin/link] }
+  check:  { desc: "shellcheck bin/",                             cmds: [shellcheck bin/*] }

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# Adds missing symlinks, replaces stale ones, removes links to skills that are
+# gone. Real folders and links to other places are left alone.
+#
+
+# shellcheck source=bin/functions.sh
+source "${0%/*}/functions.sh"
+
+#
+# Links every repo skill into a target folder.
+#
+function link_skills()
+{
+	local target="$1"
+	local name
+
+	mkdir -p "$target" || return $?
+	for name in $(skills); do
+		case "$(status "$target" "$name")" in
+			ok)	;;
+			missing|stale)
+				echo ">>> link   $target/$name"
+				ln -sfn "$repo/$name" "$target/$name" || return $?
+				;;
+			*)	echo "*** skip   $target/$name (not our symlink)" >&2 ;;
+		esac
+	done
+}
+
+#
+# Removes symlinks into the repo whose skill is gone.
+#
+function prune_stale()
+{
+	local target="$1"
+	local link
+
+	for link in "$target"/*; do
+		[[ "$(status "$target" "${link##*/}")" == stale ]] || continue
+		echo ">>> remove $link"
+		rm "$link" || return $?
+	done
+}
+
+for target in "${targets[@]}"; do
+	link_skills "$target" || fail "Linking into $target failed!"
+	prune_stale "$target" || fail "Pruning $target failed!"
+done
