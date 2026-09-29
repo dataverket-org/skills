@@ -28,20 +28,21 @@ task link     # first run: symlink every skill into both folders
 Afterwards:
 
 ```sh
+task          # help: the list of tasks
 task list     # skills and symlink status per folder
 task update   # git pull, then link
 task link     # add missing symlinks, remove stale ones
-task check    # shellcheck bin/
 ```
 
 `task link` leaves real folders and symlinks to other places alone. Needs
-[Task](https://taskfile.dev). `task check` also needs shellcheck.
+[Task](https://taskfile.dev).
 
 ## Conventions
 
 - `SKILL.md` under 150 lines. Longer material in `references/`, pointed to from the body.
 - Skill scripts: no host dependencies beyond podman or docker. Versions pinned in the script.
-- `bin/` follows [bash-style](bash-style/), in-repo layout. Verify with `task check`.
+- `bin/` follows [bash-style](bash-style/), in-repo layout. Verify with its
+  shellcheck command for `bin/` alone, from the repo root.
 - `Taskfile.yml` lists commands. A task that needs conditionals, loops or
   computed variables becomes a script in `bin/`.
 - Comments: facts, decisions, references. No reasoning prose.
