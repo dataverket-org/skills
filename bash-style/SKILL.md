@@ -22,11 +22,9 @@ settles what they leave open.
   `share/<name>/*.sh`, one topic per file (`logging.sh`, `util.sh`,
   `<thing>/functions.sh`).
 - An in-repo tool, run only from the repository it lives in: `bin/` alone,
-  no `share/`. One executable per task, named after the task, and the shared
-  functions in `bin/functions.sh`, sourced with
-  `source "${0%/*}/functions.sh"`. A task runner (Taskfile, Makefile) is an
-  index of one-line entries that call `bin/<task>` and holds no shell of its
-  own.
+  no `share/`. One executable per action, named after it, and the shared
+  functions, logging included, in `bin/functions.sh`, sourced with
+  `source "${0%/*}/functions.sh"`.
 - Find yourself with parameter expansion, not external commands:
   `"${0%/*}"` in a script, `"${BASH_SOURCE[0]%/*}"` in a library.
 - Tabs for indentation, spaces only to align continuation lines. Keep lines
@@ -118,9 +116,17 @@ option $1` on stderr and `return 1`, and `*)` collecting positionals into
 shunit2, one `test/<topic>-tests/<function>_test.sh` per function, each test a
 `function test_<what>()` with `assertEquals "message" "$expected" "$actual"`,
 ending in `SHUNIT_PARENT=$0 . $SHUNIT2`. A `test/helper.sh` finds shunit2,
-points `HOME` at a fixtures directory and sources the library. `make check`
-runs shellcheck on `share/<name>/*.sh bin/*`, excluding SC2034, SC2154,
-SC1090, SC1091 and SC2242, the five that this style triggers on purpose.
+points `HOME` at a fixtures directory and sources the library.
+
+shellcheck over every executable and library, as bash since libraries have
+no shebang, with the five codes this style triggers on purpose excluded:
+
+```sh
+shellcheck -s bash -e SC2034,SC2154,SC1090,SC1091,SC2242 bin/* share/*/*.sh
+shellcheck -s bash -e SC2034,SC2154,SC1090,SC1091,SC2242 bin/*
+```
+
+The first for a tool installed onto PATH, the second for an in-repo tool.
 
 A complete small tool in this style is in `references/skeleton.sh`; copy its
 shape rather than its content.

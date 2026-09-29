@@ -15,8 +15,14 @@
     },
     {
       "id": 3,
-      "prompt": "Write shunit2 tests for the absolute_path and extract functions in share/tool/util.sh, and a make check target.",
-      "expected_output": "test/helper.sh that locates shunit2 and sources the library, one test/util-tests/<function>_test.sh per function with function test_<what>() cases and SHUNIT_PARENT=$0 . $SHUNIT2, and a Makefile check target running shellcheck with the five standard excludes.",
+      "prompt": "Write shunit2 tests for the absolute_path and extract functions in share/tool/util.sh, and the shellcheck command that checks the scripts.",
+      "expected_output": "test/helper.sh that locates shunit2 and sources the library, one test/util-tests/<function>_test.sh per function with function test_<what>() cases and SHUNIT_PARENT=$0 . $SHUNIT2, and shellcheck -s bash -e SC2034,SC2154,SC1090,SC1091,SC2242 bin/* share/*/*.sh. No task runner is named or assumed.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "This repo needs two maintenance scripts: one that lists the fixtures under test/fixtures with their sizes, and one that removes fixtures older than 30 days. They share the fixtures path and the logging.",
+      "expected_output": "bin/list-fixtures and bin/prune-fixtures, each #!/usr/bin/env bash with a header comment, sourcing \"${0%/*}/functions.sh\"; bin/functions.sh with no shebang, not executable, holding the fixtures path, log/warn/error/fail and the shared functions with comment blocks and || return $?. No share/ directory, no task runner file.",
       "files": []
     }
   ]
