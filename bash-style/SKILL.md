@@ -60,6 +60,16 @@ function download()
 - Placeholders that a later file overrides are one-liners:
   `function pre_install() { return; }`.
 
+## Comments
+
+A comment states a fact the code cannot: the choice made, a constraint, a
+reference. `# GNU and BSD sed differ on -i; write to a temp file.` or
+`# Bound from ruby-install, where a topic file is 44 to 142 lines.` Not
+reasoning prose, no weighing of alternatives, no story of how the code came
+to be. Do not restate what the code already says: no `# Loop over files`
+above a `for` loop, no `# Return on error` beside `|| return $?`. A line
+that reads clearly gets no comment.
+
 ## The entry point
 
 ```bash
