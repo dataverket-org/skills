@@ -5,7 +5,8 @@ description: Browser automation via Playwright in a persistent container. Use th
 
 # Playwright
 
-One script per call. The script runs in a container, the result comes back as JSON.
+Send one script per call. It runs in a container and the result comes back
+as JSON.
 
 ## Run
 
@@ -22,10 +23,13 @@ const { chromium } = require('playwright-core');
 PWEOF
 ```
 
-- `<workspace>`: the session scratchpad directory. Not the repo: `.tmp/playwright/` with `node_modules/` lands inside it.
-- Script on stdin, always. A call without one exits 2.
-- First run pulls the image (~2.5 GB). Container start plus install: ~3 s. Later runs: under 1 s plus the script.
-- Container: `pw-<basename>-<hash>`, one per workspace path, stops after 10 min idle, restarts on the next run.
+- Pass the session scratchpad directory as `<workspace>`, not the repo:
+  `.tmp/playwright/` with `node_modules/` lands inside it.
+- Pass the script on stdin. A call without one exits 2.
+- Expect the first run to pull the image (~2.5 GB). Container start plus
+  install takes ~3 s; later runs take under 1 s plus the script.
+- The container is `pw-<basename>-<hash>`, one per workspace path. It stops
+  after 10 min idle and restarts on the next run.
 
 ## Read the result
 
@@ -35,19 +39,29 @@ PWEOF
 { "exitCode": 0, "durationMs": 1523, "stdout": "...", "stderr": "", "screenshots": ["page.png"], "timedOut": false }
 ```
 
-1. `exitCode` non-zero: read `stderr`.
-   The terminal already shows a summary line plus the script's stdout; the file is the full record.
-2. Open each screenshot with the Read tool: `<workspace>/.tmp/playwright/<name>`.
-3. `console.log` in the script is the channel for data: styles, text, request lists. Print JSON.
+1. If `exitCode` is non-zero, read `stderr`. The terminal already shows a
+   summary line plus the script's stdout; the file is the full record.
+2. Open each screenshot with the Read tool:
+   `<workspace>/.tmp/playwright/<name>`.
+3. Get data out with `console.log` in the script: styles, text, request
+   lists. Print JSON.
 
 ## Script rules
 
-- `require('playwright-core')`, CommonJS. `playwright` (full) downloads browsers and fails.
-- `chromium.launch({ headless: true, args: ['--no-sandbox'] })`. Root in the container, no display.
-- Files: `/workspace/...` only. It is `<workspace>/.tmp/playwright/` on the host.
-- Screenshots: no `fullPage: true` on long pages. Images over 8000 px on a side cannot be viewed. Use the viewport, an element (`el.screenshot`), or `clip`.
-- Timeout: 120 s per script. `PW_SCRIPT_TIMEOUT_MS=300000 run.sh ...` to raise it. On timeout `exitCode` is 124 and `timedOut` is true.
-- One browser per script. Nothing persists between runs: log in inside the script, or save `storageState` to `/workspace/` and load it next run.
+- Use `require('playwright-core')`, CommonJS. The full `playwright` package
+  downloads browsers and fails.
+- Launch with `chromium.launch({ headless: true, args: ['--no-sandbox'] })`:
+  the script is root in the container and has no display.
+- Write files under `/workspace/` only. It is `<workspace>/.tmp/playwright/`
+  on the host.
+- Do not use `fullPage: true` on a long page: an image over 8000 px on a side
+  cannot be viewed. Capture the viewport, an element (`el.screenshot`) or a
+  `clip`.
+- A script times out after 120 s; raise it with
+  `PW_SCRIPT_TIMEOUT_MS=300000 run.sh ...`. On timeout `exitCode` is 124 and
+  `timedOut` is true.
+- Use one browser per script. Nothing persists between runs: log in inside
+  the script, or save `storageState` to `/workspace/` and load it next run.
 
 ## Options
 
@@ -56,14 +70,20 @@ run.sh --clean <workspace>            # remove the container; also with a script
 CONTAINER_BIN=docker run.sh <ws>      # runtime override; default podman, then docker
 ```
 
-- Deleted the workspace while the container lived: the next run detects the stale mount and recreates it.
-- Version bump: `IMAGE` and `PW_VERSION` in `run.sh` move together, then `--clean`.
+- If the workspace was deleted while the container lived, the next run
+  detects the stale mount and recreates the container.
+- To bump the version, move `IMAGE` and `PW_VERSION` in `run.sh` together,
+  then run `--clean`.
 
 ## Platform
 
-- Linux: `--network=host`, `localhost` is the host.
-- macOS: the host network is the podman machine VM. Use `host.containers.internal` in URLs. Untested.
+| Host | Network | Reach a local service at |
+|---|---|---|
+| Linux | `--network=host` | `localhost` |
+| macOS (untested) | the podman machine VM | `host.containers.internal` |
 
 ## Patterns
 
-`references/patterns.md`: computed styles, multiple viewports, DOM plus network plus console verification in one run, element screenshots, storage state.
+Read `references/patterns.md` for computed styles, multiple viewports, DOM
+plus network plus console verification in one run, element screenshots and
+storage state.
