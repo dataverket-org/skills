@@ -4,13 +4,13 @@
     {
       "id": 1,
       "prompt": "I changed apps/forgejo-runners/release.yaml so the runner Deployment uses maxSurge 0 and maxUnavailable 1, because its docker store is a single ReadWriteOnce volume and the rolling update hung. I tested a rollout today and it took four minutes. The repo's log uses subjects like 'feat(zulip): ...' and 'docs(plans): ...'. Write the commit message.",
-      "expected_output": "A subject of the form fix(forgejo-runners): <statement>, where the statement says what is true after the commit in the present tense with the Deployment or the rollout as its subject, lower case after the colon, no full stop, not an imperative such as 'update' or 'fix'. A prose body wrapped near 80 columns giving the reason (one RWO volume) and the verification with the date written out and the four minutes. No bullet list, no Co-Authored-By, no Signed-off-by, no em dash.",
+      "expected_output": "A subject of the form fix(forgejo-runners): <statement>, where the statement says what is true after the commit in the present tense with the Deployment or the rollout as its subject, lower case after the colon, no full stop, not an imperative such as 'update' or 'fix', in one line of about 80 characters at most. A prose body wrapped near 80 columns giving the reason (one RWO volume) and the verification with the date written out and the four minutes. No bullet list, no Co-Authored-By, no Signed-off-by, no em dash.",
       "files": []
     },
     {
       "id": 2,
-      "prompt": "Commit the README typo fix in this repo. git log --format=%s shows: 'bash-style: shellcheck command spelled out, no task runner named', 'bin/, README: guarded source and repo path', 'Taskfile: help as default, check removed'.",
-      "expected_output": "The agent follows the repository's own path-prefix form, with a subject such as 'README: <what the README now says>', and no type(scope) prefix. No body, since the subject says everything. It stages only the README by path and adds no AI trailer.",
+      "prompt": "One change in this repo does three things: it pulls @dataverket/forgejo 2026.11.12.2, replaces the local workflow forge-merge-commits-only with the extension's @dataverket/forgejo-stagecraft-merge-settings, and deletes the old workflow file. They cannot be split, the old workflow breaks with the new version. Write the commit message.",
+      "expected_output": "A subject of the form chore(forge) or chore(extensions): <statement> that names the main fact, the pulled version, in one line of about 80 characters at most. The replaced workflow and the deleted file are in a prose body, not chained into the subject with semicolons. No path-prefix subject, no bullet list, no AI trailer.",
       "files": []
     },
     {

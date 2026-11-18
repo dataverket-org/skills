@@ -11,18 +11,19 @@ the repository after it, and the body says why that fact was chosen and how it
 was checked. The reader may not be a native English speaker: short words,
 exact names, full sentences.
 
-## Read the log first
+## One form
+
+```
+type(scope): statement
+```
+
+`fix(forgejo-runners): the runner Deployment recreates on its one RWO claim`
+
+Read the log before writing, for the scopes the repository already uses:
 
 ```sh
 git log --format='%s' -30
 ```
-
-Follow what the repository already does. Two forms are in use:
-
-| Form | Example | Where |
-|---|---|---|
-| `type(scope): statement` | `fix(forgejo-runners): the runner Deployment recreates, since its docker store is one Cinder RWO claim` | Most repositories |
-| `path: statement` | `bash-style: shellcheck command spelled out, no task runner named; in-repo eval` | Small repositories with one folder per thing |
 
 A fork of an upstream project is not covered. It follows upstream's
 `CONTRIBUTING`, its subject form and its sign-off rule.
@@ -50,14 +51,14 @@ A fork of an upstream project is not covered. It follows upstream's
   decision number. `chore(zitadel): @dataverket/zitadel 2026.10.01.3, the
   seven definitions migrated`.
 - A version or a name may lead, followed by a colon and what it brings:
-  `feat(forgejo): 2026.11.11.1: repo_merge_settings_ensure reads and converges
-  a repository's pull-request merge settings`.
-- A commit that carries more than one fact joins them with semicolons, the
-  main one first. Prefer one fact per commit; the semicolon is for facts that
-  cannot be separated.
-- One line, as long as the facts need. There is no 50 or 72 character limit:
-  most subjects are 60 to 150 characters. A subject that needs more than two
-  semicolons is usually two commits.
+  `feat(forgejo): 2026.11.11.1: repo_merge_settings_ensure converges merge
+  settings`.
+- One line of about 80 characters at most. The limit is soft: a few
+  characters over is better than a name cut short or a vague word. A subject
+  well past it holds more than one fact.
+- One fact per subject, the main one. Further facts go in the body, or in a
+  commit of their own when they can be separated. A semicolon joins two
+  facts only when both fit within the length.
 - No em dashes, no emoji, no issue number alone as the statement.
 
 ## The body
@@ -80,10 +81,11 @@ tried"). Something that failed is stated as a fact: `the pgbench gate failed
 at 412 tps against a floor of 500`.
 
 ```
-feat(health): the two OIDC documents are asserted by their issuer field exactly, with bodyJson
+feat(health): the two OIDC documents are asserted by their exact issuer
 
-bodyContains matched a substring, which a longer issuer also satisfies. The
-documents are public, so the record shows the issuer it got when they differ.
+bodyContains matched a substring, which a longer issuer also satisfies, so the
+assertion is bodyJson on the issuer field. The documents are public, so the
+record shows the issuer it got when they differ.
 ```
 
 ## Trailers and authorship
