@@ -63,30 +63,65 @@ A fork of an upstream project is not covered. It follows upstream's
 
 ## The body
 
-Leave it out when the subject says everything. Otherwise:
+Leave it out when the subject says everything. Otherwise it explains two
+things the diff cannot show:
 
-- Prose, in paragraphs, wrapped at about 80 columns. No bullet lists and no
-  headings.
-- The reason the change was made, and what else was considered if that
-  matters to the next reader.
-- What was verified and when, with the date written out: `Run on 2026-11-12:
-  only allow_fast_forward_only_merge changed, and the read-back shows merge
-  commits alone.`
-- References by name: a decision number, a doc path, an upstream issue
-  (`forgejo-helm#1638`).
-- What the commit leaves open, in one sentence, if anything.
+- **Intent**: what the change is for, the problem it answers, and what else
+  was considered if that matters to the next reader.
+- **Outcome**: what is different for someone using or running the thing, what
+  was verified and when, with the date written out, and what is left open.
+  `Run on 2026-11-12: the read-back shows merge commits alone.`
 
-The body does not retell the diff and does not narrate the work ("first I
-tried"). Something that failed is stated as a fact: `the pgbench gate failed
-at 412 tps against a floor of 500`.
+It does not repeat logic that is in the code: which function calls which,
+what a condition tests, which field was renamed. The diff says that, and says
+it exactly. It does not narrate the work either ("first I tried"). Something
+that failed is stated as an outcome: `the pgbench gate failed at 412 tps
+against a floor of 500`.
+
+Prose, in paragraphs, wrapped at about 80 columns. No bullet lists and no
+headings.
+
+### References
+
+Point to the source when a reader would otherwise have to search for it:
+
+- A decision or a doc in the same repository, by number or path: `decision
+  023`, `docs/storage.md`.
+- An issue or pull request in the form the forge links: `#27` in the same
+  repository, `dataverket/fabrikk#12` in another. For one on another forge,
+  the short name people use, `forgejo-helm#1638`, or the full link.
+- A full link where no short form is unambiguous, such as a release note or
+  a page of documentation for the exact version in use.
+
+Every reference is verified before it is written: the issue was opened and
+says what the body claims, the link was fetched and answered, the decision
+number exists. A reference that cannot be checked is left out; the body never
+cites from memory.
 
 ```
 feat(health): the two OIDC documents are asserted by their exact issuer
 
-bodyContains matched a substring, which a longer issuer also satisfies, so the
-assertion is bodyJson on the issuer field. The documents are public, so the
-record shows the issuer it got when they differ.
+A longer issuer that only starts with ours passed the old check, so a
+misconfigured instance read as healthy. The check now fails on anything but
+the exact issuer, and the record shows the issuer it got. Run on 2026-11-09
+against both instances: both pass, and a test instance with a suffix fails.
 ```
+
+### Closing an issue on Forgejo
+
+A bare `#27` only links. A keyword in front of it acts on the issue:
+
+| Effect | Keywords |
+|---|---|
+| Close | `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved` |
+| Reopen | `reopen`, `reopens`, `reopened` |
+
+Use `Closes #27` as the last line of the body, one line per issue. With a
+pull request, put it in the description and not in the commits, so the issue
+closes when the pull request merges. In a commit message, use it only for a
+commit that goes straight to the default branch. Only issues can be closed
+this way, and only when the commit or the pull request finishes the issue;
+otherwise write the bare reference.
 
 ## Trailers and authorship
 
