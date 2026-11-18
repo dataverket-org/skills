@@ -6,6 +6,7 @@ Skills for coding agents. One folder per skill: `SKILL.md`, and `scripts/`,
 | Skill | What it does |
 |---|---|
 | [bash-style](bash-style/) | Bash style for scripts committed to a repo, after postmodern's ruby-install and chruby: tabs, `function` blocks, `|| return $?`, bash 3, shunit2. |
+| [commit-style](commit-style/) | Commit messages and pull request titles: a type, a scope and a statement of what is true after the commit; a prose body with the reason and what was verified. |
 | [playwright](playwright/) | Browser automation in a persistent container. Screenshots, computed styles, DOM and network checks. |
 | [zmx](zmx/) | Long-lived processes in detached sessions: dev servers, watchers, databases. Start, wait for ready, scan output, kill by project. |
 

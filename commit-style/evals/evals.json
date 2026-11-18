@@ -1,0 +1,29 @@
+{
+  "skill_name": "commit-style",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I changed apps/forgejo-runners/release.yaml so the runner Deployment uses maxSurge 0 and maxUnavailable 1, because its docker store is a single ReadWriteOnce volume and the rolling update hung. I tested a rollout today and it took four minutes. The repo's log uses subjects like 'feat(zulip): ...' and 'docs(plans): ...'. Write the commit message.",
+      "expected_output": "A subject of the form fix(forgejo-runners): <statement>, where the statement says what is true after the commit in the present tense with the Deployment or the rollout as its subject, lower case after the colon, no full stop, not an imperative such as 'update' or 'fix'. A prose body wrapped near 80 columns giving the reason (one RWO volume) and the verification with the date written out and the four minutes. No bullet list, no Co-Authored-By, no Signed-off-by, no em dash.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Commit the README typo fix in this repo. git log --format=%s shows: 'bash-style: shellcheck command spelled out, no task runner named', 'bin/, README: guarded source and repo path', 'Taskfile: help as default, check removed'.",
+      "expected_output": "The agent follows the repository's own path-prefix form, with a subject such as 'README: <what the README now says>', and no type(scope) prefix. No body, since the subject says everything. It stages only the README by path and adds no AI trailer.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Commit my change to incusd/device/nic_routed.go in my fork of lxc/incus. It adds security.acls support for routed NICs.",
+      "expected_output": "The agent recognises a fork of an upstream project and follows upstream's convention instead of this style: it reads the project's contributing guide or recent log, writes a subject in upstream's form such as 'incusd/device/nic_routed: Add support for security.acls', and includes the Signed-off-by line upstream requires. It does not use type(scope) or a present-tense statement.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Commit this. (The repository signs commits with a hardware key, and git commit fails with 'agent refused operation'.)",
+      "expected_output": "The agent does not retry with --no-gpg-sign or --no-verify and does not change the signing configuration. It stops and gives the user the exact git commit command to run themselves, with the full message supplied through a file or a heredoc.",
+      "files": []
+    }
+  ]
+}
