@@ -93,8 +93,8 @@ A bare `#27` only links. A keyword before it acts on the issue:
 
 Write `Closes #27` as the last line, one line per issue, and only when the
 change finishes the issue. With a pull request, put it in the description so
-the issue closes at merge. Put it in a commit message only for a commit made
-straight to the default branch.
+the issue closes at merge. Without a pull request, put it in the last commit
+of the branch.
 
 ## Trailers
 
@@ -105,13 +105,16 @@ straight to the default branch.
 
 ## Making the commit
 
-- Commit only when asked. On the default branch, branch first unless the
-  repository commits to it directly.
+- Commit only when asked, and on a branch. An agent does not commit to the
+  default branch and does not merge into it.
 - Stage by path. Read `git status` and `git diff --staged` first, and leave
   unrelated changes out.
-- Keep signing on: no `--no-gpg-sign`, no `--no-verify`. If a hardware key
-  refuses, stop and give the user the exact command, with the message in a
-  file.
+- As an agent, commit unsigned: `git commit --no-gpg-sign`. The signature
+  belongs on the merge. Everything that reaches the default branch is signed
+  by a person or by the forge, and that signature attests the whole branch,
+  so a signature on an unreviewed commit would say too much.
+- Leave the signing configuration alone, and do not skip hooks with
+  `--no-verify`.
 - A revert names what is undone and the state returned to: `revert: the second
   Incus host, back to the tree at 17f259f`.
 

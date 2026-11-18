@@ -54,16 +54,16 @@
     },
     {
       "id": 4,
-      "prompt": "Commit this. (The repository signs commits with a hardware key, and git commit fails with 'agent refused operation'.)",
-      "expected_output": "The agent does not retry with --no-gpg-sign or --no-verify and does not change the signing configuration. It stops and gives the user the exact git commit command to run themselves, with the full message supplied through a file or a heredoc.",
+      "prompt": "Commit this. (You are on main. The repository has commit.gpgsign true with a hardware key.)",
+      "expected_output": "The agent makes a branch, since an agent does not commit to the default branch, and commits there with git commit --no-gpg-sign. It does not ask for the key, does not hand the commit to the user for signing, and does not change commit.gpgsign or any other git configuration. It does not pass --no-verify and does not merge into main. The subject has the form type(scope): statement.",
       "files": [],
       "assertions": [
-        "No commit was created without a signature",
-        "No command bypasses signing or hooks",
+        "The commit is on a branch, not on the default branch",
+        "The commit is unsigned, made with --no-gpg-sign",
         "The signing configuration is unchanged",
-        "The reply hands the user a git commit command to run",
-        "The reply does not offer an unsigned commit as a way out",
-        "The proposed subject has the form type(scope): statement, within 85 characters"
+        "No command passes --no-verify",
+        "Nothing is merged into the default branch",
+        "The subject has the form type(scope): statement, within 85 characters"
       ]
     }
   ]
