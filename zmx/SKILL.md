@@ -8,7 +8,7 @@ description: Work in named zmx terminal sessions that persist. Use whenever the 
 A session is a named PTY behind a Unix socket. The operator attaches to it
 from any window; the agent types into it and reads it without attaching.
 Upstream: https://github.com/neurosnap/zmx. Written against 1.0.1, tested
-on macOS. `README.md` here is the operator's side.
+on macOS and Ubuntu 24.04. `README.md` here is the operator's side.
 
 ## Which mode
 
@@ -50,6 +50,11 @@ conversation, put it in a zmx session.
   3. A script on stdin, with no command named. Each line is typed into the
      session, so the output starts with the script echoed, prompts and `> `
      continuations included; read the result through `output.sh`.
+- **Keep every typed line under 4 KB.** A Linux PTY takes at most 4096
+  bytes on one input line. Past that, on Ubuntu 24.04, half the runs never
+  saw their marker and hung, though the command itself finished. A long
+  value goes in a file through `scripts/put.sh`; a long script goes on stdin
+  as many short lines, or in a file. macOS took 85 KB lines.
 - **Do not pipe data into `zmx run <s> <command>`.** `printf 'x\n' | zmx run
   "$S" cat` hangs, though `zmx help` shows it: the data never reaches the
   command, which waits on the PTY until Ctrl+C. Copy the data into a file
@@ -57,10 +62,12 @@ conversation, put it in a zmx session.
 - **Copy files with `scripts/put.sh` and `scripts/get.sh`, not `zmx write`.**
   `zmx write` returns before the session has finished typing its chunks. A
   command sent meanwhile lands inside a half-typed quote, and the session's
-  shell then swallows everything that follows; a 1 MB write stopped at
-  48 KB on its own. The scripts send one blocking `run` per 32 KB chunk and
-  compare a sha256 on both sides; exit 0 means the bytes match. They need
-  `base64`, and `sha256sum` or `shasum`, inside the session.
+  shell then swallows everything that follows. Its 48 KB lines also break
+  the 4 KB rule: on macOS a 1 MB write stopped at 48 KB, on Linux a 40 KB
+  write left no file and a stuck session. The scripts send one blocking
+  `run` per chunk of under 3 KB and compare a sha256 on both sides; exit 0
+  means the bytes match. 1 MB takes 5 to 10 seconds. They need `base64`,
+  and `sha256sum` or `shasum`, inside the session.
 
   ```bash
   scripts/put.sh "$S" ./app.conf /etc/app/app.conf   # local to session

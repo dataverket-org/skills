@@ -26,9 +26,15 @@ REMOTE="$3"
 
 # zmx write returns before the session has typed all its chunks, and a
 # command sent meanwhile lands inside an open quote. Every chunk here is a
-# blocking run with its own exit code instead. 32000 raw bytes is 42668 of
-# base64 per command line; 85336 was tested to work. zmx 1.0.1.
-CHUNK=32000
+# blocking run with its own exit code instead. A Linux PTY takes at most
+# 4096 bytes on one input line: above that, half the runs on Ubuntu 24.04
+# never saw their marker. So each typed line stays under 3800 bytes, with
+# room for the wrapper and the path, which zmx may quote at twice its
+# length. macOS took 85 KB lines. zmx 1.0.1.
+# Divide first: whole base64 groups of 4 characters, 3 bytes each.
+# shellcheck disable=SC2017
+CHUNK=$(( (3800 - 120 - 2 * ${#REMOTE}) / 4 * 3 ))
+(( CHUNK >= 300 )) || { echo "put: remote path too long: $REMOTE" >&2; exit 1; }
 
 # Each word is passed to run as-is and quoted by zmx; base64 needs no quoting.
 zmx run "$SESSION" bash -c ': > "$1"' _ "$REMOTE" >/dev/null
