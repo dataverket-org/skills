@@ -7,9 +7,41 @@ description: Bash coding style for scripts that get committed to a git repositor
 
 A committed script is read far more often than it is written, by people who
 did not write it. Write for that reader: small functions, named arguments,
-every failure returned to the caller, and bash 3 only, so a stock macOS runs
-it too. Where the repository already has a consistent shell style, follow
-it; this skill settles what that style leaves open.
+every failure returned to the caller, and bash 5.2 or newer. Where the
+repository already has a consistent shell style, follow it; this skill
+settles what that style leaves open.
+
+## Bash version
+
+Write for bash 5.2, the oldest bash on the platforms the scripts run on;
+raise it when Debian ships a newer one. Checked on 2026-11-20:
+
+| Platform | bash |
+|---|---|
+| Debian 13 Trixie | 5.2.37 |
+| Ubuntu 26.04 | 5.3 |
+| Arch Linux | 5.3.20 |
+| Homebrew, macOS and Linux | 5.3.20 |
+
+- Use what 5.2 has where it reads better: associative arrays
+  (`declare -A`), `mapfile`, `${arr[-1]}`, `local -n`, `${var,,}` and
+  `${var^^}`, `${var@Q}` to quote a value for another shell, `wait -n`,
+  `|&`, `$EPOCHSECONDS`, and `shopt -s globstar` or `extglob` where a
+  pattern needs them.
+- `patsub_replacement` is on from 5.2: an unquoted `&` in the replacement of
+  `${var//pattern/replacement}` inserts the matched text. Quote the
+  replacement, or keep a literal `&` in a variable.
+- macOS still ships bash 3.2 as `/bin/bash`, and `#!/usr/bin/env bash` finds
+  it when Homebrew's bin is not first in PATH. Make the file every entry
+  point sources first (`logging.sh`, or `bin/functions.sh`) start with a
+  version check that says what happened and how to fix it, then stops. Do
+  not restart the script under another bash; the user fixes PATH once. A
+  repository with a Brewfile lists `brew "bash"` in it.
+- Copy the check from `references/version-check.sh` as it is. It is
+  written for bash 3.2, which runs it, and it is the one place a library
+  calls `exit`. Put it before any 5.2 syntax: bash 3.2 reads a file one
+  command at a time, so the check stops it before it reaches code it cannot
+  parse.
 
 ## Layout
 
@@ -125,8 +157,7 @@ tool within the bound:
   `md5)	program="$md5sum" ;;`.
 - Use single-line forms where they read well: `[[ -n "$x" ]] && do_thing`,
   and `if   cond; then a` / `elif cond; then b` / `fi` with aligned keywords.
-- Stay within bash 3: no associative arrays, no `${var,,}`, no `mapfile`, no
-  `|&`. `shopt -s extglob` is fine when a `case` pattern needs it.
+- Stay within bash 5.2, as "Bash version" says.
 - Test for a tool with `command -v tool >/dev/null`, and pick the first of
   several with a chain of `if command -v a; then x="a" / elif ...`.
 - Read a global the user may set from the environment once, at the top:
