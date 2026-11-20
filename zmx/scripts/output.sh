@@ -20,10 +20,12 @@ fi
 
 # History is rendered at the PTY width, so a long echoed command wraps and
 # its marker lands on the next line. Lines of exactly the widest length are
-# treated as continued and joined, then any line carrying the marker is
-# dropped: that removes both the echoed command and the marker itself.
-# A real output line that is exactly screen-wide merges with its successor;
-# grep still finds patterns, only --context around it shifts. zmx 0.8.1.
+# treated as continued and joined, unless the line already carries the
+# marker: when nothing wraps, the widest line is often the echoed command,
+# and joining it would drop the output after it. Then any line carrying the
+# marker is dropped: that removes both the echoed command and the marker.
+# A real output line of the widest length merges with its successor; grep
+# still finds patterns, only --context around it shifts. zmx 1.0.1.
 zmx history "$1" --vt 2>/dev/null \
   | sed -E $'s/\x1b\\[[0-9;?]*[A-Za-z]//g; s/\x1b\\][^\x07]*\x07//g; s/\r//g' \
   | awk '
@@ -32,7 +34,7 @@ zmx history "$1" --vt 2>/dev/null \
         buf = ""
         for (i = 1; i <= NR; i++) {
           buf = buf line[i]
-          if (length(line[i]) == w && i < NR) continue
+          if (length(line[i]) == w && i < NR && line[i] !~ /ZMX_TASK_COMPLETED/) continue
           if (buf !~ /ZMX_TASK_COMPLETED/ && buf ~ /[^[:space:]]/) print buf
           buf = ""
         }

@@ -111,6 +111,9 @@ Otherwise it is just a command.
 |---|---|---|
 | The agent says a command was not found, but it exists | It passed the command as one quoted string; zmx types the quotes | The skill says to pass words. Point it at the gotcha. |
 | The agent hangs after starting a server | It forgot `-d`; a plain `run` waits for the command to finish | `zmx send <name> "$(printf '\x03')"` sends ctrl+c, then restart with `-d` |
+| The agent hangs on a command fed with a pipe | Data piped into `zmx run <name> <cmd>` never reaches the command | ctrl+c as above; the skill copies data in with `scripts/put.sh` |
+| A command reports your host or your `$HOME`, not the session's | The agent's own shell expanded it before zmx typed it | The skill wraps such commands in `sh -c '...'` |
+| A session shows a `>` prompt and ignores everything | A `zmx write` was still typing when the next command arrived, leaving a quote open | ctrl+c, then copy again with `scripts/put.sh`, which checks a sha256 |
 | A session shows a stuck prompt | Something inside wants a TTY: an editor, a pager, `sudo` | Attach and answer, or ctrl+c as above |
 | `git push` in an old session fails on the key | The session kept the `SSH_AUTH_SOCK` from when it was created | Kill and recreate the session |
 | A session vanished | zmx was upgraded | Start it again |
