@@ -2,9 +2,21 @@
 #
 # fetch-tool: downloads and unpacks a release archive. Everything that would
 # normally live in share/fetch-tool/*.sh is inlined here so the shape is
-# visible in one file: constants, logging, utilities, option parsing, and an
-# entry point that reads as a list of steps.
+# visible in one file: the bash version check, constants, logging,
+# utilities, option parsing, and an entry point that reads as a list of
+# steps.
 #
+
+# macOS's /bin/bash is 3.2, and env finds it when Homebrew's bin is not first
+# in PATH. This block itself runs in bash 3.2.
+if (( BASH_VERSINFO[0] * 100 + BASH_VERSINFO[1] < 502 )); then
+	cat >&2 <<EOF
+${0##*/}: needs bash 5.2 or newer, but runs in $BASH $BASH_VERSION.
+Install a newer bash (on macOS: brew install bash) and put its directory
+before /bin in PATH, so that "#!/usr/bin/env bash" finds it.
+EOF
+	exit 1
+fi
 
 fetch_tool_version="0.1.0"
 cache_dir="${FETCH_TOOL_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/fetch-tool}"
