@@ -1,15 +1,15 @@
 ---
 name: zmx
-description: Use whenever the user names a zmx session to work in, asks to run commands on a server, host or container they have a session open to, or wants a command to outlive the current shell — dev servers, file/test watchers, database servers, anything started once and observed over time. Trigger even when "zmx" isn't named — "run this on server1", "do it in the dev session", "start the dev server", "keep this running and tell me when it's ready", or "run npm run dev and check the logs" all qualify. Do NOT use for one-shot commands that finish in seconds and only you consume.
+description: Work in named zmx terminal sessions that persist. Use whenever the user names a zmx session to work in, asks to run commands on a server, host or container they have a session open to, or wants a command to outlive the current shell, such as a dev server, a file or test watcher, a database server, or anything started once and observed over time. Use it even when "zmx" is not named; "run this on server1", "do it in the dev session", "start the dev server", "keep this running and tell me when it's ready" and "run npm run dev and check the logs" all qualify. Not for one-shot commands that finish in seconds and only you consume.
 ---
 
 # zmx
 
-Named terminals that persist. A session is a PTY behind a Unix socket;
-the operator attaches to it from any window, the agent types into it and
-reads it without attaching. Upstream: https://github.com/neurosnap/zmx.
-Written against 0.8.1; `run` changed in 0.7.0 (bash, blocking, quoting).
-`README.md` here is the operator's side.
+A session is a named PTY behind a Unix socket. The operator attaches to it
+from any window; the agent types into it and reads it without attaching.
+Upstream: https://github.com/neurosnap/zmx. Written against 0.8.1; `run`
+changed in 0.7.0 (bash, blocking, quoting). `README.md` here is the
+operator's side.
 
 ## Which mode
 
@@ -19,61 +19,45 @@ Written against 0.8.1; `run` changed in 0.7.0 (bash, blocking, quoting).
 | A process must keep running: server, watcher, database | 2. Service |
 | A command only the agent consumes, that ends on its own | Neither: own Bash, background if long |
 
-Rule: if the user might want to look at it or touch it, or it must outlive
-the conversation, it goes in a zmx session.
+If the user might want to look at it or touch it, or it must outlive the
+conversation, put it in a zmx session.
 
-## Always-active gotchas
+## Rules that always apply
 
-### `zmx run` blocks until the command exits. `-d` for anything long-lived
+- **Use `-d` for anything long-lived.** Plain `run` streams the output and
+  returns the command's exit code, so it blocks until the command exits and
+  a server hangs the agent. `run <name> -d ...` returns at once; track it
+  with `zmx wait` or `scripts/wait.sh`.
+- **Pass the command as words, not one quoted string.** `run` types its
+  arguments as-is and re-quotes one that has spaces, so
+  `zmx run s 'npm run dev'` runs the literal `'npm run dev'`: not found.
 
-Plain `run` streams the output back and returns the command's exit code.
-A server never exits, so the agent hangs. `run <name> -d ...` returns at
-once; `zmx wait` and `scripts/wait.sh` track it afterwards.
-
-### Pass the command as words, never as one quoted string
-
-`run` types its arguments as-is. One argument with spaces is re-quoted,
-so `zmx run s 'npm run dev'` runs the literal `'npm run dev'`: not found.
-
-```bash
-zmx run "$S" -d npm run dev                          # words
-printf 'npm run build && npm test\n' | zmx run "$S"  # ; | && > : via stdin
-zmx run "$S" -d bash -c 'sleep 2; echo ready'        # or a bash -c wrapper
-```
-
-### Never `zmx attach` from agent context
-
-`attach` blocks the shell on a PTY. Inside a session `ZMX_SESSION` is set
-and `attach` moves that terminal to the named session, taking the user's
-window with it. `run`, `history`, `tail`, `wait`, `send` never switch.
-
-### One session, one command at a time
-
-Commands into a session queue in one shell. Never send two in parallel.
-
-### Interactive prompts are the operator's
-
-`run` gives the command `/dev/null` on stdin, so pagers exit. Anything
-that reads the TTY (`sudo`, `ssh` passphrases, `read < /dev/tty`, an
-editor) waits for a human. See "Hand a prompt to the operator". Recovery:
-
-```bash
-zmx send "$S" "$(printf '\x03')"   # Ctrl+C, raw bytes, no marker
-```
-
-### Never kill across prefixes
-
-Other agents and the operator share the host. Kill only sessions under
-this project's prefix, and never a portal session the operator opened.
-
-### Version upgrades kill existing sessions
-
-An IPC change orphans running sessions. No `brew upgrade zmx` mid-task.
+  ```bash
+  zmx run "$S" -d npm run dev                          # words
+  printf 'npm run build && npm test\n' | zmx run "$S"  # ; | && > : via stdin
+  zmx run "$S" -d bash -c 'sleep 2; echo ready'        # or a bash -c wrapper
+  ```
+- **Do not `zmx attach`.** It blocks the shell on a PTY. Inside a session
+  `ZMX_SESSION` is set and `attach` moves that terminal to the named session,
+  taking the user's window with it. `run`, `history`, `tail`, `wait` and
+  `send` never switch.
+- **Send one command at a time to a session.** Commands queue in one shell;
+  never send two in parallel.
+- **Leave interactive prompts to the operator.** `run` gives the command
+  `/dev/null` on stdin, so pagers exit, but anything that reads the TTY
+  (`sudo`, an `ssh` passphrase, `read < /dev/tty`, an editor) waits for a
+  human. See "Hand a prompt to the operator". To recover, send Ctrl+C as raw
+  bytes, which carry no marker: `zmx send "$S" "$(printf '\x03')"`.
+- **Kill only your own sessions.** Other agents and the operator share the
+  host. Kill only sessions under this project's prefix, and never a portal
+  session the operator opened.
+- **Do not upgrade zmx mid-task.** An IPC change orphans running sessions,
+  so no `brew upgrade zmx`.
 
 ## 1. Portal: work in a session the operator opened
 
-The operator attached `server1`, logged in, and named it. Every command
-for that host goes through it; the agent's own Bash stays for local work.
+The operator attached `server1`, logged in and named it. Send every command
+for that host through it; keep the agent's own Bash for local work.
 
 ```bash
 S=server1
@@ -85,7 +69,7 @@ cat local.conf | zmx write "$S" /etc/app/app.conf   # file in, base64 under the 
 zmx run "$S" systemctl restart web && zmx run "$S" systemctl is-active web
 ```
 
-Exit codes need `$?` in the session's shell: bash and zsh work; fish does
+Exit codes need `$?` in the session's shell: bash and zsh work, fish does
 not (0.8.1 has no fish flag).
 
 ### Hand a prompt to the operator
@@ -112,13 +96,14 @@ fi
 scripts/wait.sh "$S" 'listening on' --timeout 60
 ```
 
-Names follow `${PROJECT}-<role>`. Labels mark ownership when names are
-ambiguous on a shared host; `zmx list | grep project="$PROJECT"` finds
-ours. `run` cannot label at creation, so set right after.
-`ZMX_SESSION_PREFIX="${PROJECT}-"` scopes every command and a bare
-`zmx wait` to the prefix; optional.
+- Name a session `${PROJECT}-<role>`.
+- Label it right after creating it, since `run` cannot label at creation.
+  Labels mark ownership when names are ambiguous on a shared host;
+  `zmx list | grep project="$PROJECT"` finds ours.
+- Optionally set `ZMX_SESSION_PREFIX="${PROJECT}-"`, which scopes every
+  command and a bare `zmx wait` to the prefix.
 
-Several processes: one session per role, the loop below.
+For several processes, use one session per role:
 
 ```bash
 for name_cmd in "server:npm run dev" "tests:npm run test:watch"; do
@@ -139,10 +124,11 @@ zmx history "$S"                              # raw: wrapped at PTY width, promp
 zmx tail "$S"                                 # follows, blocks: for humans
 ```
 
-Raw history carries the typed command with its `ZMX_TASK_COMPLETED`
-marker, so a bare `grep` matches the command you sent. `output.sh` joins
-wrapped lines, drops echoes and markers, strips ANSI; the other two read
-through it. Logs that must be kept: `printf 'cmd 2>&1 | tee -a log\n' | zmx run "$S" -d`.
+Read through `output.sh`, not raw history. Raw history carries the typed
+command with its `ZMX_TASK_COMPLETED` marker, so a bare `grep` matches the
+command you sent. `output.sh` joins wrapped lines, drops echoes and markers
+and strips ANSI; the other two scripts read through it. To keep a log:
+`printf 'cmd 2>&1 | tee -a log\n' | zmx run "$S" -d`.
 
 ### Detached commands that finish
 
@@ -153,7 +139,7 @@ zmx wait "${PROJECT}-build" "${PROJECT}-lint"
 zmx list | grep "name=${PROJECT}-tests"       # exit_code= and ended= once done
 ```
 
-`wait` on a server blocks forever; use `scripts/wait.sh`.
+`wait` on a server blocks forever; use `scripts/wait.sh` there.
 
 ### Lifecycle
 
@@ -163,10 +149,10 @@ zmx kill "$S"; zmx kill "$S" --force
 zmx list --short 2>/dev/null | grep "^${PROJECT}-" | while read -r s; do zmx kill "$s"; done
 ```
 
-A session keeps the environment it was created with; `SSH_AUTH_SOCK`
-inside goes stale after a re-login. Recreate rather than debug.
+A session keeps the environment it was created with, so `SSH_AUTH_SOCK`
+inside goes stale after a re-login. Recreate the session; do not debug it.
 
-## When to consult what
+## Where to look
 
 | Task | Look here |
 |---|---|
